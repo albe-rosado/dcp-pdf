@@ -63,3 +63,6 @@ typings/
 # creds
 credentials.json
 token.json
+/cache.db
+/.vs
+/solutions
