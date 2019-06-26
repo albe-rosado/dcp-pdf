@@ -1,6 +1,7 @@
 const {google} = require('googleapis');
 const _ = require('lodash');
 const fs = require('fs');
+const path = require('path');
 const GmailAuth = require('./gmail-auth');
 const DStore = require('./dstore');
 const puppeteer = require('puppeteer');
@@ -36,14 +37,35 @@ async function producePdfFiles(solutionLinks){
     const browser = await puppeteer.launch();
 
     for(link of solutionLinks){
-        const page = await browser.newPage();
+    
         const startIdx = link.lastIndexOf('/');
         const endIdx = link.indexOf('?');
         const solutionId = link.slice(startIdx + 1, endIdx);
+        
+        // if the document exists, dont bother
+        if(fs.existsSync(path.join(__dirname, 'solutions', `${solutionId}.pdf`))) continue;
+
+        const page = await browser.newPage();
         await page.goto(link, {waitUntil: 'networkidle2'});
+        await page.waitForSelector('.cta');
+        await page.click('.cta');
+        //make some space
+        await page.evaluate(() => {
+            const header = document.querySelector('.nav');
+            header.parentNode.removeChild(header);
+            const footer = document.querySelector('.footer');
+            footer.parentNode.removeChild(footer);
+            document.querySelector('#app > div').style.marginTop = '10px';
+            document.querySelector('#app > div').style.marginBottom = '10px';
+        });
         await page.pdf({
             path: `./solutions/${solutionId}.pdf`,
-            format: 'letter'
+            format: 'letter',
+            margin: {
+                top: '2cm',
+                bottom: '2cm'
+            },
+            printBackground: true
         });
         await page.close();
     }
@@ -65,7 +87,6 @@ async function getSolutionUrls(Gmail, emailIds){
     solutionUrls = _.compact(solutionUrls);
     return Promise.resolve(solutionUrls);
 }
-
 
 
 async function getEmailSolutionUrl(Gmail, emailId){
