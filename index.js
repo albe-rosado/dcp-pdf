@@ -27,6 +27,24 @@ async function processEmails(auth) {
 }
 
 
+
+// TODO Finish this someday
+// async function mergePdfFiles(){
+//     let filenames;
+//     try {
+//         filenames = await fs.readdir(path.join(__dirname, 'solutions'));
+//     } catch (error) {
+//         return Promise.reject(error);
+//     }
+
+//     if(!filenames) return Promise.resolve();
+
+//     //dummy check, dont be evil!
+//     filenames = _.filter(filenames, filename => filename.includes('.pdf'));
+// }
+
+
+
 async function producePdfFiles(solutionLinks){
     try {
         await fs.mkdirSync('./solutions', {recursive: true});    
@@ -36,7 +54,7 @@ async function producePdfFiles(solutionLinks){
     
     const browser = await puppeteer.launch();
 
-    for(link of solutionLinks){
+    for(let link of solutionLinks){
     
         const startIdx = link.lastIndexOf('/');
         const endIdx = link.indexOf('?');
@@ -55,7 +73,7 @@ async function producePdfFiles(solutionLinks){
             header.parentNode.removeChild(header);
             const footer = document.querySelector('.footer');
             footer.parentNode.removeChild(footer);
-            document.querySelector('#app > div').style.marginTop = '10px';
+            document.querySelector('#app > div').style.marginTop = '10px'; 
             document.querySelector('#app > div').style.marginBottom = '10px';
         });
         await page.pdf({
