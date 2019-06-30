@@ -1,7 +1,7 @@
-const {google} = require('googleapis');
-const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
+const {google} = require('googleapis');
+const _ = require('lodash');
 const GmailAuth = require('./gmail-auth');
 const DStore = require('./dstore');
 const puppeteer = require('puppeteer');
@@ -102,7 +102,6 @@ async function getSolutionUrls(Gmail, emailIds){
     }
 
     solutionUrls = _.compact(_.flatten(solutionUrls));
-    console.log(solutionUrls.length)
     return Promise.resolve(solutionUrls);
 }
 
