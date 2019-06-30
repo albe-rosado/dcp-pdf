@@ -5,10 +5,11 @@ const _ = require('lodash');
 const GmailAuth = require('./gmail-auth');
 const DStore = require('./dstore');
 const puppeteer = require('puppeteer');
-
-
+const os = require('os');
 const cache = new DStore('cache.db');
 
+
+const cpus = os.cpus().length;
 GmailAuth('credentials.json', processEmails);
 
 
@@ -16,7 +17,7 @@ GmailAuth('credentials.json', processEmails);
 
 async function processEmails(auth) {
     const Gmail = google.gmail({version: 'v1', auth});
-    
+
     getEmailIds(Gmail)
     .then(messageIds => getSolutionUrls(Gmail, messageIds))
     .then(urls => producePdfFiles(urls))
@@ -24,23 +25,6 @@ async function processEmails(auth) {
     .catch(e => console.log(' Error: ', e));
 
 }
-
-
-
-// TODO Finish this someday
-// async function mergePdfFiles(){
-//     let filenames;
-//     try {
-//         filenames = await fs.readdir(path.join(__dirname, 'solutions'));
-//     } catch (error) {
-//         return Promise.reject(error);
-//     }
-
-//     if(!filenames) return Promise.resolve();
-
-//     //dummy check, dont be evil!
-//     filenames = _.filter(filenames, filename => filename.includes('.pdf'));
-// }
 
 
 
@@ -53,15 +37,24 @@ async function producePdfFiles(solutionLinks){
     
     const browser = await puppeteer.launch();
 
-    for(let link of solutionLinks){
-    
-        const startIdx = link.lastIndexOf('/');
-        const endIdx = link.indexOf('?');
-        const solutionId = link.slice(startIdx + 1, endIdx);
-        
-        // if the document exists, dont bother
-        if(fs.existsSync(path.join(__dirname, 'solutions', `${solutionId}.pdf`))) continue;
+    for(let i = 0; i < solutionLinks.length; i += cpus){
+        await Promise.all((solutionLinks.slice(i, i + cpus)).map(link => printSolution(browser, link)));
+    }
 
+    await browser.close();
+    return Promise.resolve('Success');
+}
+
+
+async function printSolution(browser, link){
+    const startIdx = link.lastIndexOf('/');
+    const endIdx = link.indexOf('?');
+    const solutionId = link.slice(startIdx + 1, endIdx);
+    
+    // if the document exists, dont bother
+    if(fs.existsSync(path.join(__dirname, 'solutions', `${solutionId}.pdf`))) return Promise.resolve();
+
+    try {
         const page = await browser.newPage();
         await page.goto(link, {waitUntil: 'networkidle2'});
         await page.waitForSelector('.cta');
@@ -85,19 +78,18 @@ async function producePdfFiles(solutionLinks){
             printBackground: true
         });
         await page.close();
+    } catch (error) {
+        console.log('Printing error: ', error);
     }
-
-    await browser.close();
-    return Promise.resolve('Success');
+    return Promise.resolve();
 }
 
 
 async function getSolutionUrls(Gmail, emailIds){
 
     let solutionUrls = [];
-    let concurrency_limit = 10;
-    for(let i = 0; i < emailIds.length; i += concurrency_limit){
-        let slot  = await Promise.all((emailIds.slice(i, i + concurrency_limit)).map(m => getEmailSolutionUrl(Gmail, m.id)));
+    for(let i = 0; i < emailIds.length; i += cpus){
+        let slot  = await Promise.all((emailIds.slice(i, i + cpus)).map(m => getEmailSolutionUrl(Gmail, m.id)));
         solutionUrls.push(slot);
     }
 
