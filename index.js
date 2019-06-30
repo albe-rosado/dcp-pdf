@@ -7,7 +7,6 @@ const DStore = require('./dstore');
 const puppeteer = require('puppeteer');
 
 
-
 const cache = new DStore('cache.db');
 
 GmailAuth('credentials.json', processEmails);
@@ -94,17 +93,19 @@ async function producePdfFiles(solutionLinks){
 
 
 async function getSolutionUrls(Gmail, emailIds){
-    let solutionUrls = await Promise.all(emailIds.map(m => getEmailSolutionUrl(Gmail, m.id)));
-    // let solutionUrls = [];
 
-    // for(let id of emailIds){
-    //     const url = await getEmailSolutionUrl(Gmail, id.id);
-    //     solutionUrls.push(url);
-    // }
+    let solutionUrls = [];
+    let concurrency_limit = 10;
+    for(let i = 0; i < emailIds.length; i += concurrency_limit){
+        let slot  = await Promise.all((emailIds.slice(i, i + concurrency_limit)).map(m => getEmailSolutionUrl(Gmail, m.id)));
+        solutionUrls.push(slot);
+    }
 
-    solutionUrls = _.compact(solutionUrls);
+    solutionUrls = _.compact(_.flatten(solutionUrls));
+    console.log(solutionUrls.length)
     return Promise.resolve(solutionUrls);
 }
+
 
 
 async function getEmailSolutionUrl(Gmail, emailId){
