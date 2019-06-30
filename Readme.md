@@ -5,22 +5,19 @@ Collect your DCP sunbscription solutions to nice pdf documents you can read in a
 
 ## Usage
 
-Clone this repo 
+Clone this repo and execute
 ``` bash
 // Obviously you need Node js and npm(or yarn, pnpm....) installed 
-npm i
-
-node .
-
+npm i && node .
 ```
-a folder called `solutions` will be created and all your solutions files will be inside, named by the solution numbers. 
+a folder called `solutions` will be created and all your solutions files will be inside, named using the solution numbers. 
 
+## :point_right::see_no_evil::construction_worker:Work in progress:construction_worker::see_no_evil::point_left:
 
-## Work in progress
 I do want to improve this a little more,
 
 - improve performance
 - produce a single pdf file
-- anything else i could come up with later...
+- anything else I could come up with later...
 
- if you feel is so gross you can't wait(it is), submit a PR yourself.
+ if you feel so gross you can't wait, submit a PR yourself.
