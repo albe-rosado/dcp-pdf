@@ -16,7 +16,6 @@ a folder called `solutions` will be created and all your solutions files will be
 
 I do want to improve this a little more,
 
-- improve performance
 - produce a single pdf file
 - anything else I could come up with later...
 
