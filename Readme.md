@@ -1,6 +1,6 @@
 # Daily Coding Problem (DCP) solutions
 
-Collect your DCP sunbscription solutions to nice pdf documents you can read in any of your devices.
+Collect your DCP subscription solutions to nice pdf documents you can read in any of your devices.
 
 
 ## Usage
