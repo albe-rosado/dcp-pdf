@@ -17,7 +17,7 @@ I'm using [PDFtk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/) in this 
 
 You could automate this to produce an updated file every day.
 
-## :point_right::see_no_evil::construction_worker:Work in progress:construction_worker::see_no_evil::point_left:
+## :point_right::construction_worker:Work in progress:construction_worker::point_left:
 
 I do want to improve this a little more,
 
