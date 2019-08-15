@@ -12,6 +12,11 @@ npm i && node .
 ```
 a folder called `solutions` will be created and all your solutions files will be inside, named using the solution numbers. 
 
+### Dependencies
+I'm using [PDFtk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/) in this project, go to their website to download it (free) for your platform.
+
+
+
 ## :point_right::see_no_evil::construction_worker:Work in progress:construction_worker::see_no_evil::point_left:
 
 I do want to improve this a little more,

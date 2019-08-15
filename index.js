@@ -6,6 +6,8 @@ const GmailAuth = require('./gmail-auth');
 const DStore = require('./dstore');
 const puppeteer = require('puppeteer');
 const os = require('os');
+const async = require('async');
+const MergePdf = require('pdf-merge');
 const cache = new DStore('cache.db');
 
 
@@ -21,27 +23,43 @@ async function processEmails(auth) {
     getEmailIds(Gmail)
     .then(messageIds => getSolutionUrls(Gmail, messageIds))
     .then(urls => producePdfFiles(urls))
+    .then(() => mergePdfFiles())
     .then(data => console.dir(data, {depth: null}))
     .catch(e => console.log(' Error: ', e));
 
 }
 
-
+async function mergePdfFiles() {
+    let files;
+    try {
+        files = fs.readdirSync(`${__dirname}/solutions`);
+        files = files.map(f => `${__dirname}/solutions/${f}`);
+        await MergePdf(files, {output: `${__dirname}/dcp.pdf`});
+        return Promise.resolve('');
+    } catch (error) {
+        return Promise.reject('Unable to merge solution files. \n', error);
+    }
+}
 
 async function producePdfFiles(solutionLinks){
     try {
-        await fs.mkdirSync('./solutions', {recursive: true});    
+        fs.mkdirSync('./solutions', {recursive: true});    
     } catch (error) {
-        return Promise.reject('Unable to create directory for documents. \n');
+        return Promise.reject('Unable to create directory for documents. \n', error);
     }
-    
+
     const browser = await puppeteer.launch();
 
-    for(let i = 0; i < solutionLinks.length; i += cpus){
-        await Promise.all((solutionLinks.slice(i, i + cpus)).map(link => printSolution(browser, link)));
-    }
-
+    const q = async.queue(async (link, callback) => {
+        await printSolution(browser, link);
+        callback();
+    }, cpus);
+    
+    q.push(solutionLinks);
+    
+    await q.drain();
     await browser.close();
+
     return Promise.resolve('Success');
 }
 
@@ -88,10 +106,16 @@ async function printSolution(browser, link){
 async function getSolutionUrls(Gmail, emailIds){
 
     let solutionUrls = [];
-    for(let i = 0; i < emailIds.length; i += cpus){
-        let slot  = await Promise.all((emailIds.slice(i, i + cpus)).map(m => getEmailSolutionUrl(Gmail, m.id)));
-        solutionUrls.push(slot);
-    }
+
+    const q = async.queue(async (m, callback) => {
+        const sol = await getEmailSolutionUrl(Gmail, m.id);
+        solutionUrls.push(sol);
+        callback();
+    }, cpus);
+    
+    q.push(emailIds);
+    
+    await q.drain();
 
     solutionUrls = _.compact(_.flatten(solutionUrls));
     return Promise.resolve(solutionUrls);

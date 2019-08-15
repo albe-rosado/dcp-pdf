@@ -25,16 +25,6 @@ class DStore {
             return Promise.reject(error);
         }
     }
-
-    // async del(key){
-    //     try {
-    //         return Promise.resolve(await this.cache.del(key));
-    //     } catch (error) {
-    //         return Promise.reject(error);
-    //     }
-    // }
-
-
 }
 
 
