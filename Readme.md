@@ -21,7 +21,7 @@ You could automate this to produce an updated file every day.
 
 I do want to improve this a little more,
 
-- ~~produce a single pdf file
+- ~~produce a single pdf file~~
 - anything else I could come up with later...
 
  if you feel so gross you can't wait, submit a PR yourself.
