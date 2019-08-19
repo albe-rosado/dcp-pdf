@@ -10,7 +10,7 @@ Clone this repo and execute
 // Obviously you need Node js and npm(or yarn, pnpm....) installed 
 npm i && node .
 ```
-a file called `dcp.pdf` will be created with all your coding problem solutions. :see_no_evil:
+a file named `dcp.pdf` will be created with all your coding problem solutions. :see_no_evil:
 
 ### Dependencies
 I'm using [PDFtk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/) in this project, go to their website to download it (free) for your platform.
